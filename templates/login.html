@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Iniciar Sesión - STREAMZY_PLAY</title>
+</head>
+<body>
+    <h2>Iniciar Sesión</h2>
+    <form id="login-form">
+        <input type="email" id="email" placeholder="Correo electrónico" required>
+        <input type="password" id="password" placeholder="Contraseña" required>
+        <button type="submit" id="login-btn">Entrar</button>
+    </form>
+
+    <script>
+        const form = document.getElementById('login-form');
+        const btn = document.getElementById('login-btn');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            // UI Feedback: Deshabilitar botón
+            btn.disabled = true;
+            btn.textContent = 'Autenticando...';
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const response = await fetch('http://127.0.0.1:8000/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({
+                        'username': email,
+                        'password': password
+                    })
+                });
+
+                if (!response.ok) throw new Error('Usuario o contraseña incorrectos');
+
+                const data = await response.json();
+                
+                // Guardar token de forma segura
+                localStorage.setItem('token', data.access_token);
+                
+                alert('¡Bienvenido de nuevo a STREAMZY_PLAY!');
+                window.location.href = '/'; 
+
+            } catch (error) {
+                console.error("Login failed:", error);
+                alert(error.message);
+                btn.disabled = false;
+                btn.textContent = 'Entrar';
+            }
+        });
+    </script>
+</body>
+</html>
